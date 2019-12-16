@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using APIFactura.Response;
+using AutoMapper;
+using Common;
 using Infraestructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +23,13 @@ namespace APIFactura
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            Mapper.Initialize(cfg =>
+            {
+                cfg.AllowNullCollections = true;
+                cfg.CreateMap(typeof(ResponseBase<>), typeof(ResponseBase<>));
+                cfg.CreateMap(typeof(Producto_Response2), typeof(Domain.Producto));
+                cfg.CreateMap(typeof(Exception), typeof(Exception));
+            });
         }
 
         public IConfiguration Configuration { get; }

@@ -8,6 +8,8 @@ using APIFactura.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Infraestructure;
+using Common;
+using AutoMapper;
 
 namespace APIFactura.Controllers
 {
@@ -54,17 +56,14 @@ namespace APIFactura.Controllers
         [HttpGet]
         public ResponseBase<Producto_Response2> GetFinal()
         {
-            ResponseBase<Producto_Response2> response = new ResponseBase<Producto_Response2>();
-            response.listado = service.Get().
-                Select(x => new Producto_Response2
-                {
-                    ProductoID = x.ProductoID,
-                    Nombre = x.Nombre
-                }).ToList();
-            
+
+            var responseService = service.GetFinal();
+            var response = Mapper.Map<ResponseBase<Producto_Response2>>(responseService);
             return response;
+            
         }
 
+       
 
 
     }
