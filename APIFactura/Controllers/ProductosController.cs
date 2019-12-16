@@ -17,10 +17,10 @@ namespace APIFactura.Controllers
     {
         private readonly ProductosService service;
 
-        public ProductosController(ContextFactura context)
+        public ProductosController()
         {
             //ProductosService _context
-            service = new ProductosService(context);
+            service = new ProductosService();
         }
 
         [Route("Insert")]
@@ -47,6 +47,22 @@ namespace APIFactura.Controllers
                 Select(x=> new Producto_Response2 { 
                                                ProductoID=x.ProductoID, 
                                                Nombre=x.Nombre}).ToList();
+        }
+
+
+        [Route("GetFinal")]
+        [HttpGet]
+        public ResponseBase<Producto_Response2> GetFinal()
+        {
+            ResponseBase<Producto_Response2> response = new ResponseBase<Producto_Response2>();
+            response.listado = service.Get().
+                Select(x => new Producto_Response2
+                {
+                    ProductoID = x.ProductoID,
+                    Nombre = x.Nombre
+                }).ToList();
+            
+            return response;
         }
 
 

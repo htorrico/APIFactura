@@ -10,9 +10,12 @@ namespace Infraestructure
 {
     public class ContextFactura : DbContext
     {
+      
         public ContextFactura(DbContextOptions options): base(options)
         {
         }
+
+        public ContextFactura() : base() { }
 
         public DbSet<Factura> Facturas { get; set; }
         public DbSet<Vendedor> Vendedores { get; set; }
@@ -20,6 +23,22 @@ namespace Infraestructure
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Detalle> Detalles { get; set; }
 
+        public IConfiguration Configuration { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+
+
+            //var connectionString = Convert.ToString( Configuration.GetSection("ConnectionStrings")["Conexion"]);
+
+            var connectionString = "Data Source=DESKTOP-F970KVM;Initial Catalog=FacturaDB;User ID=usrFactura;Password=123456;";
+
+            if (!optionsBuilder.IsConfigured)
+            {
+                //optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(config.SecondsTimeOutBD));
+                optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(120));
+            }
+        }
 
     }
 

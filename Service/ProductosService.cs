@@ -10,12 +10,14 @@ namespace Service
     {
         private readonly ContextFactura _context;
 
-        public ProductosService(ContextFactura context)
+        public ProductosService()
         {
             _context = new ContextFactura();
         }
 
         
+
+
         public IEnumerable<Producto> Get()
         {
             return _context.Productos.ToList();
