@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Infraestructure;
 using Common;
 using AutoMapper;
+using Domain;
 
 namespace APIFactura.Controllers
 {
@@ -21,49 +22,41 @@ namespace APIFactura.Controllers
 
         public ProductosController()
         {
-            //ProductosService _context
             service = new ProductosService();
-        }
-
-        [Route("Insert")]
-        [HttpPost]
-        public Producto_Response Insert(Producto_Request request)
-        {
-            //Pendiente Mapper
-
-            Domain.Producto producto= service.Insert(new Domain.Producto
-            {
-                Nombre = request.Nombre,
-                Descripcion = request.Descripcion,                
-                Precio = request.Precio
-            });            
-            return new Producto_Response { ProductoID = producto.ProductoID };
         }
 
 
         [Route("Get")]
         [HttpGet]
-        public IEnumerable<Producto_Response2> Get()
-        {
-            return service.Get().
-                Select(x=> new Producto_Response2 { 
-                                               ProductoID=x.ProductoID, 
-                                               Nombre=x.Nombre}).ToList();
-        }
-
-
-        [Route("GetFinal")]
-        [HttpGet]
-        public ResponseBase<Producto_Response2> GetFinal()
+        public ResponseBase<Producto_Response2> Get()
         {
 
-            var responseService = service.GetFinal();
-            var response = Mapper.Map<ResponseBase<Producto_Response2>>(responseService);
+            var responseJSON = service.Get();
+            var response = Mapper.Map<ResponseBase<Producto_Response2>>(responseJSON);
             return response;
-            
+
         }
 
-       
+        [Route("GetById")]
+        [HttpGet]
+        public ResponseBase<Producto_Response2> GetById(int Id)
+        {
+
+            var responseJSON = service.GetById(Id);
+            var response = Mapper.Map<ResponseBase<Producto_Response2>>(responseJSON);
+            return response;
+        }
+
+        [Route("InsertOrUpdate")]
+        [HttpPost]
+        public ResponseBase<Producto_Response> InsertOrUpdate([FromBody] Producto_Request request)
+        {
+
+            var requestConvert = Mapper.Map<Producto>(request);
+            var responseJSON = service.InsertOrUpdate(requestConvert, requestConvert.ProductoID);
+            var response = Mapper.Map<ResponseBase<Producto_Response>>(responseJSON);
+            return response;
+        }
 
 
     }

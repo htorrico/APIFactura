@@ -1,59 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Common;
 using Domain;
 using Infraestructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace Service
 {
     public class FacturasService
     {
-        private readonly ContextFactura _context;
-
-        public FacturasService()
+        public ResponseBase<Factura> Insert(Factura model)
         {
-            _context = new ContextFactura();
-        }
-
-
-        public Factura Insert(Factura factura)
-        {
+            ResponseBase<Factura> response = null;
             try
             {
-                List<string> FunctionalErrors = new List<string>();
-
-                //Valido lógica del producto
-                foreach (var item in factura.Detalles)
-                {
-                    var producto=_context.Productos.Find(item.ProductoID);
-                    if (producto.Precio > 10)
-                        FunctionalErrors.Add("El precio es muy alto para esta tienda");
-                }
-
-
-                //Validar lógica del cliente
-                var cliente = _context.Clientes.Find(factura.ClienteID);
-
-                if (cliente.RazonSocial=="Hugo Torrico")
-                    FunctionalErrors.Add("El cliente es moroso");
-
-
-
-
-
-                factura.Activo = true;
-                _context.Facturas.Add(factura);
-                _context.SaveChanges();
-                return factura;
+                
+                    using (var context = new ContextFactura())
+                    {
+                        model.Activo = true;
+                        context.Facturas.Add(model);
+                        context.SaveChanges();
+                        response = new UtilitariesResponse<Factura>().setResponseBaseForOK(model);
+                    }
+                
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                //Escribir Log
-                //throw;
-                return new Factura { FacturaID = 0 };
+                response = new UtilitariesResponse<Factura>().setResponseBaseForException(e);
             }
 
+            return response;
         }
+
+
+
 
     }
 }

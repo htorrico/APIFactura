@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using APIFactura.Request;
 using APIFactura.Response;
 using AutoMapper;
 using Common;
@@ -28,6 +29,8 @@ namespace APIFactura
                 cfg.AllowNullCollections = true;
                 cfg.CreateMap(typeof(ResponseBase<>), typeof(ResponseBase<>));
                 cfg.CreateMap(typeof(Producto_Response2), typeof(Domain.Producto));
+                cfg.CreateMap(typeof(Producto_Response), typeof(Domain.Producto));
+                cfg.CreateMap(typeof(Producto_Request), typeof(Domain.Producto));
                 cfg.CreateMap(typeof(Exception), typeof(Exception));
             });
         }

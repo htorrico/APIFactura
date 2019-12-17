@@ -5,88 +5,93 @@ using System.Text;
 using Domain;
 using Common;
 using Infraestructure;
+using Microsoft.EntityFrameworkCore;
+
 namespace Service
 {
-   public class ProductosService
+    public class ProductosService
     {
-        private readonly ContextFactura _context;
 
-        public ProductosService()
+        
+        public ResponseBase<Producto> Get()
         {
-            _context = new ContextFactura();
-        }
-
-
-        public ResponseBase<Producto> GetFinal()
-        {
-            ResponseBase<Producto> response = new ResponseBase<Producto>();
-            
+            ResponseBase<Producto> response;
             try
             {
 
+               
+                    using (var context = new ContextFactura())
+                    {
+                        IQueryable<Producto> query = context.Productos.Where(x=>x.Activo==true);
+                        response = new UtilitariesResponse<Producto>().setResponseBaseForList(query);
+                    }
 
-                string errorFuncional = string.Empty;
-                List<Producto> productos= _context.Productos.ToList();
-
-                throw new Exception("Excepcion forzado");
-
-                if (productos.Count()>1)                
-                    errorFuncional = "Su consulta devulve demasiados resultados";
-
-                if (errorFuncional!=string.Empty)
-                {
-                    List<string> FunctionalErrors = new List<string>();
-                    FunctionalErrors.Add(errorFuncional);
-                    response.FunctionalErrors = FunctionalErrors;
                 }
-
-
-                if (response.FunctionalErrors==null)
+                catch (Exception e)
                 {
-                    response.Message = "OK";
-                    response.IsResultList = true;
+                    response = new UtilitariesResponse<Producto>().setResponseBaseForException(e);
+                }
+                return response;
+
+            
+
+       }
+
+        public ResponseBase<Producto> GetById(int? Id)
+        {
+           
+            ResponseBase<Producto> response;
+            try
+            {
+                using (var context = new ContextFactura())
+                {
+                    Producto producto = context.Productos.Find(Id);
+                    response = new UtilitariesResponse<Producto>().setResponseBaseForObj(producto);
+
+                }
+            }
+            catch (Exception e)
+            {
+                response = new UtilitariesResponse<Producto>().setResponseBaseForException(e);                
+            }
+
+            return response;
+        }
+
+        public ResponseBase<Producto> InsertOrUpdate(Producto model, int? Id)
+        {            
+            ResponseBase<Producto> response = null;
+            try
+            {
+                if (Id > 0)
+                {
+                    using (var context = new ContextFactura())
+                    {
+                        Producto Producto = context.Productos.Find(Id);
+                        context.Entry(Producto).State = EntityState.Modified;
+                        //Campos  modificar
+                        Producto.Descripcion = model.Descripcion;
+                        context.SaveChanges();
+                        response = new UtilitariesResponse<Producto>().setResponseBaseForOK(model);
+                    }
                 }
                 else
                 {
-                    response.Code = 201;
-                    response.Message = "Leer Errores Funcionales";
+                    using (var context = new ContextFactura())
+                    {
+                        model.Activo = true;
+                        context.Productos.Add(model);
+                        context.SaveChanges();
+                        response = new UtilitariesResponse<Producto>().setResponseBaseForOK(model);
+                    }
                 }
-                
-                return response;
             }
-            catch (Exception ex) 
+            catch (Exception e)
             {
-                //Escribir Log                
-                response.Message = "Por favor comuniquese con el administrador";
-                response.TechnicalErrors = ex;                                
-                return response;
+                response = new UtilitariesResponse<Producto>().setResponseBaseForException(e);                
             }
-           
-        }
 
-
-        public IEnumerable<Producto> Get()
-        {
-            
-            return _context.Productos.ToList();
-        }
-      
-        public Producto Insert(Producto producto)
-        {
-            try
-            {
-                producto.Activo = true;
-                _context.Productos.Add(producto);
-                _context.SaveChanges();
-                return producto;
-            }
-            catch (Exception ex)
-            {
-                //Escribir Log
-                //throw;
-                return new Producto{ ProductoID = 0};
-            }
-           
+            return response;
         }
     }
 }
